@@ -40,3 +40,10 @@ class LogisticRegression:
 
         self.weights_ = theta
         return theta
+
+    def predict(self, x):
+        ones = np.ones(x.shape[0])
+        x = np.hstack((np.asarray(x), ones.reshape(-1, 1)))
+        pred = 1 / (1 + np.exp(-(np.dot(x, self.weights_))))
+
+        return pred
