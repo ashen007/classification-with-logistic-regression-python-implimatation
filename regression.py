@@ -26,16 +26,17 @@ class LogisticRegression:
         self.cost = []
 
     def fit(self, x, y, learning_rate, epochs):
-        weights_ = np.zeros(x.shape[1] + 1)
-        x = np.hstack([x, np.ones((x.shape[0], 1))])
+        theta = np.zeros(x.shape[1] + 1)
+        ones = np.ones(x.shape[0])
+        x = np.hstack((np.asarray(x), ones.reshape(-1, 1)))
 
         for i in range(epochs):
-            hypothesis = 1 / (1 + np.exp(-(np.dot(x, weights_))))
-            loss = y - hypothesis
+            hypothesis = 1 / (1 + np.exp(-(np.dot(x, theta))))
+            loss = hypothesis - y
             gradient = np.dot(x.T, loss) / len(y)
-            weights_ = weights_ - gradient * learning_rate
+            theta = theta - gradient * learning_rate
             cost = (-1 / len(y)) * (np.sum((y * np.log(hypothesis)) + ((1 - y) * (np.log(1 - hypothesis)))))
             self.cost.append(cost)
 
-        self.weights_ = weights_
-        return self.weights_
+        self.weights_ = theta
+        return theta
