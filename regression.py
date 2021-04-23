@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.special import softmax
+from feature_engine.encoding import OneHotEncoder
 
 
 class LinearRegression:
@@ -47,3 +49,38 @@ class LogisticRegression:
         pred = 1 / (1 + np.exp(-(np.dot(x, self.weights_))))
 
         return pred
+
+
+class MultiClassLogisticRegression:
+    def __init__(self):
+        self.weights_ = []
+        self.cost = []
+
+    def encorder(self, y):
+        """Y dataframe"""
+        encode = OneHotEncoder()
+        encode.fit(y)
+        return encode.transform(y)
+
+    def fit(self, x, y, learning_rate, epochs):
+        """Y dataframe"""
+        ones = np.ones(x.shape[0])
+        y = self.encorder(y)
+        x = np.hstack((np.asarray(x), ones.reshape(-1, 1)))
+        theta = np.zeros([x.shape[1], y.shape[1]])
+
+        for i in range(epochs):
+            hypothesis = softmax(np.dot(x, theta),axis=1)
+            loss = hypothesis - y
+            gradient = np.dot(x.T, loss) / len(y)
+            theta = theta - gradient * learning_rate
+            cost = 1/len(y)*(np.trace(np.dot(np.dot(x,theta),y.T))) + np.sum(np.log(np.sum(np.exp(np.dot(x,theta)),axis=1)))
+            self.cost.append(cost)
+
+        self.weights_ = theta
+        return theta
+
+    def predict(self,x):
+        ones = np.ones(x.shape[0])
+        x = np.hstack((np.asarray(x), ones.reshape(-1, 1)))
+        return np.argmax(softmax(np.dot(x,self.weights_),axis=1),axis=1)
