@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats as ss
 from scipy.special import softmax
 from feature_engine.encoding import OneHotEncoder
 
@@ -84,3 +85,21 @@ class MultiClassLogisticRegression:
         ones = np.ones(x.shape[0])
         x = np.hstack((np.asarray(x), ones.reshape(-1, 1)))
         return np.argmax(softmax(np.dot(x,self.weights_),axis=1),axis=1)
+
+
+class KNN:
+    def __init__(self,x,y,k=5):
+        self.hyper_parameter = x
+        self.target = y
+        self.neighbors = k
+        self.predicted_cluster = []
+
+    def predict(self,x):
+        # add rules for inputs: TODO
+        for i in range(x.shape[0]):
+            distances = np.sqrt(np.sum(np.square(self.hyper_parameter - x.loc[i]),axis=1))
+            closest_neighbors = self.target.loc[distances.sort_values().head(self.neighbors).index]
+            cluster = ss.mode(closest_neighbors.values).mode[0][0]
+            self.predicted_cluster.append(cluster)
+
+        return self.predicted_cluster
